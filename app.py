@@ -5,20 +5,23 @@ from analyzer.link_check import analyze_links
 from analyzer.header_check import analyze_headers
 import os
 
-# Cria a aplicação Flask
+# ---------------------------------------------------------------
+# 1️⃣  Criação e configuração base da aplicação Flask
+# ---------------------------------------------------------------
 app = Flask(__name__)
 
-# Autoriza chamadas de qualquer origem (ex: Gmail, navegador, extensão)
+# Autorização de chamadas de qualquer origem (Gmail, navegador, extensão)
+# '*' aceita tudo; se desejar restringir, define origens específicas.
 CORS(
     app,
+    origins="*",
     supports_credentials=True,
     methods=["GET", "POST", "OPTIONS"],
-    allow_headers=["Content-Type"],
-    resources={r"/*": {"origins": "*"}}
+    allow_headers=["Content-Type"]
 )
 
 # ---------------------------------------------------------------
-# 1️⃣  Rota inicial: mensagem quando alguém abre o domínio raiz
+# 2️⃣  Rota inicial (exibe status do servidor)
 # ---------------------------------------------------------------
 @app.route("/")
 def home():
@@ -29,7 +32,7 @@ def home():
     )
 
 # ---------------------------------------------------------------
-# 2️⃣  Rota principal: análise de e‑mails maliciosos
+# 3️⃣  Endpoint principal de análise de e‑mail
 # ---------------------------------------------------------------
 @app.route("/analyze", methods=["POST"])
 def analyze_email():
@@ -40,22 +43,22 @@ def analyze_email():
     score = 0
     reasons = []
 
-    # Texto
+    # 3.1  Verifica palavras suspeitas
     s, r = analyze_text(text)
     score += s
     reasons.extend(r)
 
-    # Links
+    # 3.2  Verifica links
     s, r = analyze_links(text)
     score += s
     reasons.extend(r)
 
-    # Headers
+    # 3.3  Verifica cabeçalhos
     s, r = analyze_headers(headers)
     score += s
     reasons.extend(r)
 
-    # Decisão final
+    # 3.4  Define o veredito
     if score >= 5:
         verdict = "Malicioso"
     elif score >= 3:
@@ -70,9 +73,6 @@ def analyze_email():
     })
 
 # ---------------------------------------------------------------
-# 3️⃣  Execução do servidor
+# 4️⃣  Execução da aplicação
 # ---------------------------------------------------------------
-if __name__ == "__main__":
-    # No Render, a porta vem da variável de ambiente PORT
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=False, use_reloader=False)
+if __name__ 
