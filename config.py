@@ -1,35 +1,26 @@
 import os
 from dotenv import load_dotenv
 
-# ---------------------------------------------------------------
-# 1️⃣  Carrega variáveis de ambiente (.env) se existirem
-# ---------------------------------------------------------------
+# Carrega variáveis de ambiente (se existir .env)
 load_dotenv()
 
-# Diretório base do projeto
-basedir = os.path.abspath(os.path.dirname(__file__))
+# Caminho base do projeto
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Caminho absoluto da pasta 'reports'
-reports_dir = os.path.join(basedir, "reports")
+# Caminho absoluto para o arquivo da base de dados
+db_path = os.path.join(BASE_DIR, "report.db")
 
-# Garante que a pasta exista (necessário no Render)
-os.makedirs(reports_dir, exist_ok=True)
+# Cria o arquivo vazio se não existir (para evitar erro do Render)
+if not os.path.exists(db_path):
+    open(db_path, "a").close()
 
-# ---------------------------------------------------------------
-# 2️⃣  Classe de configuração principal
-# ---------------------------------------------------------------
+
 class Config:
-    """Configurações centrais da aplicação Flask."""
+    """Configuração Global do Flask"""
 
-    # Chave secreta da aplicação
     SECRET_KEY = os.getenv("SECRET_KEY", "default-key")
 
-    # URL do banco de dados:
-    # - se houver DATABASE_URL (ex: PostgreSQL no Render), usa ela;
-    # - senão, cria e usa um SQLite local dentro da pasta 'reports'.
-    SQLALCHEMY_DATABASE_URI = (
-        os.getenv("DATABASE_URL")
-        or "sqlite:///" + os.path.join(reports_dir, "report.db")
-    )
-
-    # Desativa rastreamento 
+    # Se o Render tiver uma DATABASE_URL (Postgres), usa-a;
+    # senão, usa o SQLite criado acima.
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL") or f"sqlite:///{db_path}"
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
