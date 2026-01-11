@@ -1,25 +1,24 @@
 import os
 from app import create_app
+from flask_sqlalchemy import SQLAlchemy
 
-# Cria a instância principal da aplicação Flask
+# ---------------------------------------------------------------
+# 1️⃣  Cria a instância principal da aplicação Flask
+# ---------------------------------------------------------------
 app = create_app()
 
 # ---------------------------------------------------------------
-# 1️⃣  Rota inicial (exibe status do servidor)
+# 2️⃣  Inicializa o SQLAlchemy e garante a criação das tabelas
 # ---------------------------------------------------------------
-@app.route("/")
-def home():
-    return (
-        "<h2>✅ Servidor Email‑Defense ativo!</h2>"
-        "<p>Use o endpoint <b>/analyze</b> com método POST "
-        "para analisar e‑mails.</p>"
-    )
+db = SQLAlchemy(app)
+with app.app_context():
+    db.create_all()
 
 # ---------------------------------------------------------------
-# 2️⃣  Execução da aplicação
+# 3️⃣  Execução do servidor (Render e local)
 # ---------------------------------------------------------------
 if __name__ == "__main__":
-    # A plataforma Render define a porta na variável de ambiente PORT
+    # O Render fornece a porta automaticamente pela variável de ambiente PORT
     port = int(os.environ.get("PORT", 5000))
-    # O host 0.0.0.0 permite acesso externo (necessário no Render)
+    # host="0.0.0.0" permite conexões externas (necessário para o Render)
     app.run(host="0.0.0.0", port=port, debug=False, use_reloader=False)
